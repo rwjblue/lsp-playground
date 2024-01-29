@@ -94,14 +94,16 @@ impl LanguageServer for Backend {
     }
 
     async fn did_open(&self, params: DidOpenTextDocumentParams) {
-        let uri = params.text_document.uri;
+        let uri = &params.text_document.uri;
         let text = params.text_document.text;
 
         self.client
             .log_message(MessageType::LOG, format!("did_open: {}", uri))
             .await;
 
-        self.documents.write().await.insert(uri, text);
+        self.documents.write().await.insert(uri.clone(), text);
+
+        self.send_diagnostics(uri).await;
     }
 
     async fn did_change(&self, params: DidChangeTextDocumentParams) {
