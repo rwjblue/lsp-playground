@@ -54,6 +54,13 @@ impl Backend {
         };
 
         self.client
+            .log_message(
+                MessageType::LOG,
+                format!("sending diagnostics: {:?}", diagnostics),
+            )
+            .await;
+
+        self.client
             .publish_diagnostics(uri.clone(), diagnostics, None)
             .await;
     }
@@ -67,19 +74,28 @@ impl LanguageServer for Backend {
 
     async fn initialized(&self, _: InitializedParams) {
         self.client
-            .log_message(MessageType::INFO, "server initialized!")
+            .log_message(MessageType::LOG, "lsp_playground server initialized!")
             .await;
     }
 
     async fn did_open(&self, params: DidOpenTextDocumentParams) {
         let uri = params.text_document.uri;
         let text = params.text_document.text;
+
+        self.client
+            .log_message(MessageType::LOG, format!("did_open: {}", uri))
+            .await;
+
         self.documents.write().await.insert(uri, text);
     }
 
     async fn did_change(&self, params: DidChangeTextDocumentParams) {
         let uri = &params.text_document.uri;
         let changes = &params.content_changes;
+
+        self.client
+            .log_message(MessageType::LOG, format!("did_change: {}", uri))
+            .await;
 
         if let Some(change) = changes.first() {
             self.documents
