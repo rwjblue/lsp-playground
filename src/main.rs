@@ -20,6 +20,10 @@ impl Backend {
 
     async fn send_diagnostics(&self, uri: &Url) {
         let diagnostics = if let Some(text) = self.documents.read().await.get(uri) {
+            self.client
+                .log_message(MessageType::LOG, format!("current file contents {}", text))
+                .await;
+
             text.lines()
                 .enumerate()
                 .filter_map(|(line_number, line)| {
