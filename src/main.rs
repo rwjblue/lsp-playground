@@ -1,5 +1,4 @@
-use std::collections::HashMap;
-use tokio::sync::RwLock as AsyncRwLock;
+use dashmap::DashMap;
 use tower_lsp::jsonrpc::Result;
 use tower_lsp::lsp_types::*;
 use tower_lsp::{Client, LanguageServer, LspService, Server};
@@ -7,23 +6,19 @@ use tower_lsp::{Client, LanguageServer, LspService, Server};
 #[derive(Debug)]
 struct Backend {
     client: Client,
-    documents: AsyncRwLock<HashMap<Url, String>>,
+    documents: DashMap<Url, String>,
 }
 
 impl Backend {
     fn new(client: Client) -> Self {
         Backend {
             client,
-            documents: AsyncRwLock::new(HashMap::new()),
+            documents: DashMap::new(),
         }
     }
 
     async fn send_diagnostics(&self, uri: &Url) {
-        let diagnostics = if let Some(text) = self.documents.read().await.get(uri) {
-            self.client
-                .log_message(MessageType::LOG, format!("current file contents {}", text))
-                .await;
-
+        let diagnostics = if let Some(text) = self.documents.get(uri) {
             text.lines()
                 .enumerate()
                 .filter_map(|(line_number, line)| {
@@ -105,7 +100,7 @@ impl LanguageServer for Backend {
             .log_message(MessageType::LOG, format!("did_open: {}", uri))
             .await;
 
-        self.documents.write().await.insert(uri.clone(), text);
+        self.documents.insert(uri.clone(), text);
 
         self.send_diagnostics(uri).await;
     }
@@ -119,11 +114,7 @@ impl LanguageServer for Backend {
             .await;
 
         if let Some(change) = changes.first() {
-            self.documents
-                .write()
-                .await
-                // TODO: figure out if we can avoid cloning here
-                .insert(uri.clone(), change.text.clone());
+            self.documents.insert(uri.clone(), change.text.clone());
         }
 
         self.send_diagnostics(uri).await;
