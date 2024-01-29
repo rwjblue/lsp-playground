@@ -69,7 +69,22 @@ impl Backend {
 #[tower_lsp::async_trait]
 impl LanguageServer for Backend {
     async fn initialize(&self, _: InitializeParams) -> Result<InitializeResult> {
-        Ok(InitializeResult::default())
+        Ok(InitializeResult {
+            capabilities: ServerCapabilities {
+                text_document_sync: Some(TextDocumentSyncCapability::Kind(
+                    TextDocumentSyncKind::FULL,
+                )),
+                diagnostic_provider: Some(DiagnosticServerCapabilities::Options(
+                    DiagnosticOptions {
+                        inter_file_dependencies: false,
+                        workspace_diagnostics: false,
+                        ..DiagnosticOptions::default()
+                    },
+                )),
+                ..ServerCapabilities::default()
+            },
+            ..InitializeResult::default()
+        })
     }
 
     async fn initialized(&self, _: InitializedParams) {
