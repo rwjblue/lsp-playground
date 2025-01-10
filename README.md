@@ -12,7 +12,7 @@ I'd like to:
 ## References
 
 - [Language Server Protocol
-  Spec](https://microsoft.github.io/language-server-protocol/specifications/specification-current)
+  Spec](https://microsoft.github.io/language-server-protocol/specifications/specification-current) ([Spec Repo](https://github.com/microsoft/language-server-protocol))
 - [tower-lsp](https://github.com/tower-lsp/tower-lsp) - A crate that wraps
   [Tower](https://github.com/tower-rs/tower) and provides a nice language server
   trait that we can implement to get off the ground floor very easily.
