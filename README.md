@@ -13,7 +13,7 @@ I'd like to:
 
 - [Language Server Protocol
   Spec](https://microsoft.github.io/language-server-protocol/specifications/specification-current)
-- [tower-lsp](https://github.com/ebkalderon/tower-lsp) - A crate that wraps
+- [tower-lsp](https://github.com/tower-lsp/tower-lsp) - A crate that wraps
   [Tower](https://github.com/tower-rs/tower) and provides a nice language server
   trait that we can implement to get off the ground floor very easily.
 - [lsp-types](https://github.com/gluon-lang/lsp-types) - A crate that provides
